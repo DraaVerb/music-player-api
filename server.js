@@ -17,6 +17,8 @@ app.get("/",(req,res)=>{
 
 app.use("/songs",songRoutes);
 
+app.use('/songs', require('./routes/songRoutes'));
+
 app.listen(3000,()=>{
     console.log("Server running on port 3000");
 });
