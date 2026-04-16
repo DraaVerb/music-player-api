@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// 🔹 GET songs by year
+// GET songs by year
 router.get('/year/:year', async (req, res) => {
     try {
         const songs = await Song.find({ year: req.params.year });
@@ -27,7 +27,20 @@ router.get('/year/:year', async (req, res) => {
     }
 });
 
-// 🔹 GET songs by artist
+// SEARCH song by title
+router.get('/search/:title', async (req, res) => {
+    try {
+        const songs = await Song.find({
+            title: { $regex: req.params.title, $options: 'i' }
+        });
+
+        res.json(songs);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// GET songs by artist
 router.get('/artist/:artist', async (req, res) => {
     try {
         const songs = await Song.find({ artist: req.params.artist });
@@ -42,7 +55,17 @@ router.get('/artist/:artist', async (req, res) => {
     }
 });
 
-// GET song by ID (taruh di bawah biar tidak bentrok)
+// GET songs by genre
+router.get('/genre/:genre', async (req, res) => {
+    try {
+        const songs = await Song.find({ genre: req.params.genre });
+        res.json(songs);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// GET song by ID (harus paling bawah)
 router.get('/:id', async (req, res) => {
     try {
         const song = await Song.findById(req.params.id);
@@ -59,15 +82,8 @@ router.get('/:id', async (req, res) => {
 
 // POST new song
 router.post('/', async (req, res) => {
-    const song = new Song({
-        title: req.body.title,
-        artist: req.body.artist,
-        album: req.body.album,
-        year: req.body.year,
-        genre: req.body.genre
-    });
-
     try {
+        const song = new Song(req.body);
         const newSong = await song.save();
         res.status(201).json(newSong);
     } catch (err) {
@@ -78,11 +94,9 @@ router.post('/', async (req, res) => {
 // UPDATE song
 router.put('/:id', async (req, res) => {
     try {
-        console.log("BODY:", req.body);
-
         const updatedSong = await Song.findByIdAndUpdate(
             req.params.id,
-            { $set: req.body }, // 🔥 pakai ini
+            { $set: req.body },
             { new: true, runValidators: true }
         );
 
