@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { Song, Playlist } = require('../models/songmodel');
 
+
+// ================= PLAYLIST =================
+
 // Buat playlist
 router.post('/playlists', async (req, res) => {
     try {
@@ -74,6 +77,9 @@ router.delete('/playlists/:playlistId', async (req, res) => {
     }
 });
 
+
+// ================= SONG =================
+
 // GET all songs
 router.get('/', async (req, res) => {
     try {
@@ -137,7 +143,43 @@ router.get('/genre/:genre', async (req, res) => {
     }
 });
 
-// GET song by ID (harus paling bawah)
+
+// ================= TAMBAHAN ENDPOINT =================
+
+// ✅ 1. GET songs berdasarkan range tahun
+router.get('/year-range', async (req, res) => {
+    try {
+        const { start, end } = req.query;
+
+        const songs = await Song.find({
+            year: { $gte: start, $lte: end }
+        });
+
+        res.json(songs);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ✅ 2. GET jumlah lagu dalam playlist
+router.get('/playlists/:playlistId/count', async (req, res) => {
+    try {
+        const playlist = await Playlist.findById(req.params.playlistId);
+
+        if (!playlist) {
+            return res.status(404).json({ message: "Playlist not found" });
+        }
+
+        res.json({ totalSongs: playlist.songs.length });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
+// ================= SONG BY ID (HARUS PALING BAWAH) =================
+
+// GET song by ID
 router.get('/:id', async (req, res) => {
     try {
         const song = await Song.findById(req.params.id);
