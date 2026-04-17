@@ -1,6 +1,80 @@
 const express = require('express');
 const router = express.Router();
-const Song = require('../models/songmodel');
+const { Song, Playlist } = require('../models/songmodel');
+
+// ================= PLAYLIST =================
+
+// ➕ Buat playlist
+router.post('/playlists', async (req, res) => {
+    try {
+        const playlist = new Playlist({
+            name: req.body.name
+        });
+
+        await playlist.save();
+        res.json(playlist);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// 📥 Ambil semua playlist
+router.get('/playlists', async (req, res) => {
+    try {
+        const playlists = await Playlist.find().populate('songs');
+        res.json(playlists);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ➕ Tambah lagu ke playlist
+router.post('/playlists/:playlistId/songs/:songId', async (req, res) => {
+    try {
+        const playlist = await Playlist.findById(req.params.playlistId);
+
+        if (!playlist) {
+            return res.status(404).json({ message: "Playlist not found" });
+        }
+
+        if (!playlist.songs.includes(req.params.songId)) {
+            playlist.songs.push(req.params.songId);
+        }
+
+        await playlist.save();
+
+        res.json({ message: "Song added" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ❌ Hapus lagu dari playlist
+router.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
+    try {
+        const playlist = await Playlist.findById(req.params.playlistId);
+
+        playlist.songs = playlist.songs.filter(
+            song => song.toString() !== req.params.songId
+        );
+
+        await playlist.save();
+
+        res.json({ message: "Song removed" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ❌ Hapus playlist
+router.delete('/playlists/:playlistId', async (req, res) => {
+    try {
+        await Playlist.findByIdAndDelete(req.params.playlistId);
+        res.json({ message: "Playlist deleted" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // GET all songs
 router.get('/', async (req, res) => {
