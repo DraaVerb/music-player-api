@@ -2,9 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Song, Playlist } = require('../models/songmodel');
 
-// ================= PLAYLIST =================
-
-// ➕ Buat playlist
+// Buat playlist
 router.post('/playlists', async (req, res) => {
     try {
         const playlist = new Playlist({
@@ -18,7 +16,7 @@ router.post('/playlists', async (req, res) => {
     }
 });
 
-// 📥 Ambil semua playlist
+// Ambil semua playlist
 router.get('/playlists', async (req, res) => {
     try {
         const playlists = await Playlist.find().populate('songs');
@@ -28,7 +26,7 @@ router.get('/playlists', async (req, res) => {
     }
 });
 
-// ➕ Tambah lagu ke playlist
+// Tambah lagu ke playlist
 router.post('/playlists/:playlistId/songs/:songId', async (req, res) => {
     try {
         const playlist = await Playlist.findById(req.params.playlistId);
@@ -49,7 +47,7 @@ router.post('/playlists/:playlistId/songs/:songId', async (req, res) => {
     }
 });
 
-// ❌ Hapus lagu dari playlist
+// Hapus lagu dari playlist
 router.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
     try {
         const playlist = await Playlist.findById(req.params.playlistId);
@@ -66,7 +64,7 @@ router.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
     }
 });
 
-// ❌ Hapus playlist
+// Hapus playlist
 router.delete('/playlists/:playlistId', async (req, res) => {
     try {
         await Playlist.findByIdAndDelete(req.params.playlistId);
