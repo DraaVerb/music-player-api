@@ -143,6 +143,35 @@ router.get('/genre/:genre', async (req, res) => {
     }
 });
 
+// GET random song
+router.get('/random', async (req, res) => {
+    try {
+        const count = await Song.countDocuments();
+
+        const random = Math.floor(Math.random() * count);
+
+        const song = await Song.findOne().skip(random);
+
+        res.json(song);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// GET latest songs (limit optional)
+router.get('/latest', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+
+        const songs = await Song.find()
+            .sort({ year: -1 }) // terbaru dulu
+            .limit(limit);
+
+        res.json(songs);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // ================= TAMBAHAN ENDPOINT =================
 
